@@ -1,9 +1,10 @@
 const { Router } = require("express");
 const { userValidation, userExists, userValidationSignIn, userExistsSignIn, authMiddleware } = require("../auth");
-const { User } = require("../db");
+const { User, Account } = require("../db");
 const userRouter = Router();
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../config")
+const zod = require("zod")
 
 userRouter.post("/signup", userValidation, userExists, async (req, res) => {
     const {username, password, firstName, lastName} = req.body;
@@ -14,6 +15,12 @@ userRouter.post("/signup", userValidation, userExists, async (req, res) => {
             firstName: firstName,
             lastName: lastName
         })
+
+        await Account.create({
+            userId, 
+            balance: 1 + Math.random() * 10000
+        })
+
         const userID = user._id;
 
         const token = jwt.sign({userID}, JWT_SECRET)
@@ -40,6 +47,51 @@ userRouter.post("/signin", userValidationSignIn, userExistsSignIn, authMiddlewar
         message: "Error while logging in"
     })
 
+})
+
+const updateBody = zod.object({
+    password: zod.string().min(6),
+    firstName: zod.string(),
+    lastName: zod.string(),
+})
+
+userRouter.put("/", authMiddleware, async (req, res) => {
+    const success = updateBody.safeParse(req.body);
+
+    if (!success) {
+        res.status(411).json({
+            msg: "Error while updating information"
+        })
+    }
+    await User.updateOne({_id: req.userID}, req.body);
+    res.status(200).json({
+        msg: "User updated successfully"
+    })
+})
+
+userRouter.get("/bulk", async (req, res) => {
+    const filter = req.query.filter || ""
+
+    const users = await User.find({
+        $or: [
+    {
+        firstName: {
+            "$regex": filter 
+        }, lastName: {
+            "$regex": filter 
+        }
+    }
+  ]
+    })
+
+    res.status(200).json({
+        user: users.map(user => ({
+            username: user.username,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            _id: user._id
+        }))
+    })
 })
 
 module.exports = {

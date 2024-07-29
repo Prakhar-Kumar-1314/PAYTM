@@ -3,6 +3,7 @@ const bodyParser  = require("body-parser");
 const rootRouter = require("./routes/index");
 const { userRouter } = require("./routes/user");
 const cors = require("cors");
+const { accountRoute } = require("./routes/accounts");
 const app = express();
 const port = 3000;
 
@@ -11,6 +12,7 @@ app.use(bodyParser.json());
 
 app.use("/api/v1", rootRouter)
 app.use("/api/v1/user", userRouter)
+app.use("/api/v1/account", accountRoute)
 
 
 app.listen(port, () => {
