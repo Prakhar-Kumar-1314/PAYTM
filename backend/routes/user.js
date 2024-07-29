@@ -3,16 +3,16 @@ const { userValidation, userExists } = require("../validation");
 const { User } = require("../db");
 const userRouter = Router();
 const jwt = require("jsonwebtoken");
-const JWT_SECRET = require("../config")
+const { JWT_SECRET } = require("../config")
 
 userRouter.post("/signup", userValidation, userExists, async (req, res) => {
-    const {username, password, firstName, lastname} = req.body;
+    const {username, password, firstName, lastName} = req.body;
 
-        await User.create({
+        const user = await User.create({
             username: username,
             password: password,
             firstName: firstName,
-            lastName: lastname
+            lastName: lastName
         })
         const userID = user._id;
 

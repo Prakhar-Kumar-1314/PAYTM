@@ -9,7 +9,7 @@ const userValidation = (req, res, next) => {
             username: zod.string().email(),
             password: zod.string().min(6),
             firstName: zod.string(),
-            lastname: zod.string()
+            lastName: zod.string()
         }).parse({
             username: username,
             password: password,
@@ -25,29 +25,24 @@ const userValidation = (req, res, next) => {
     }
 }
 
-const userExists = (req, res, next) => {
-    const {username, password} = req.body;
-
+const userExists = async (req, res, next) => {
+    const { username } = req.body;
+    
     try {
-        User.findOne({
-            username: username,
-            password: password
-        })
-            .then((data) => {
-                if (data) {
-                    res.status(411).json({
-                        msg: "User Already exists"
-                    })
-                } else {
-                    next();
-                }
-         }) 
+        const exists = await User.findOne({ username });
+        if (exists) {
+            return res.status(400).json({  // Changed status code to 400
+                msg: "User Already Exists"
+            });
+        }
+        next();
     } catch (err) {
-        res.status(400).json({
+        res.status(500).json({
             error: err.message
-        })
+        });
     }
-}
+};
+
 
 module.exports = {
     userExists,

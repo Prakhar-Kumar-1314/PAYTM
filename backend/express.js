@@ -3,12 +3,10 @@ const bodyParser  = require("body-parser");
 const rootRouter = require("./routes/index");
 const { userRouter } = require("./routes/user");
 const cors = require("cors");
-const { JWT_SECRET } = require("./config");
 const app = express();
-const secretKey = require(JWT_SECRET);
 const port = 3000;
 
-app.use(cors)
+app.use(cors())
 app.use(bodyParser.json());
 
 app.use("/api/v1", rootRouter)
