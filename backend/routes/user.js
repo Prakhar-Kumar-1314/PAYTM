@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const { userValidation, userExists, userValidationSignIn, userExistsSignIn, authMiddleware } = require("../auth");
-const { User } = require("../db");
+const { User, Account } = require("../db");
 const userRouter = Router();
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../config")
@@ -15,6 +15,12 @@ userRouter.post("/signup", userValidation, userExists, async (req, res) => {
             firstName: firstName,
             lastName: lastName
         })
+
+        await Account.create({
+            userId, 
+            balance: 1 + Math.random() * 10000
+        })
+
         const userID = user._id;
 
         const token = jwt.sign({userID}, JWT_SECRET)
