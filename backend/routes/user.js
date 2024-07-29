@@ -1,5 +1,5 @@
 const { Router } = require("express");
-const { userValidation, userExists, userValidationSignIn, userExistsSignIn } = require("../validation");
+const { userValidation, userExists, userValidationSignIn, userExistsSignIn, authMiddleware } = require("../auth");
 const { User } = require("../db");
 const userRouter = Router();
 const jwt = require("jsonwebtoken");
@@ -24,7 +24,7 @@ userRouter.post("/signup", userValidation, userExists, async (req, res) => {
     })
 })
 
-userRouter.post("/signin", userValidationSignIn, userExistsSignIn, async (req, res) => {
+userRouter.post("/signin", userValidationSignIn, userExistsSignIn, authMiddleware, async (req, res) => {
     const {username, password} = req.body;
 
     const user = await User.findOne({username, password});
