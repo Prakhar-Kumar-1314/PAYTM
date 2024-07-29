@@ -1,6 +1,9 @@
 const mongoose = require("mongoose");
 
-mongoose.connect("mongodb+srv://prakharkumar1314:4h0TKimFXaHO8MyJ@cluster0.kwskxal.mongodb.net/Paytm");
+mongoose.connect("mongodb+srv://prakharkumar1314:4h0TKimFXaHO8MyJ@cluster0.kwskxal.mongodb.net/Paytm", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+});
 
 const userSchema = new mongoose.Schema({
     username: {
@@ -34,13 +37,15 @@ const userSchema = new mongoose.Schema({
 const accountSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
-        required: true
+        required: true,
+        ref: 'User'  // Reference to the User schema
     },
     amount: {
         type: Number,
-        required: true
+        required: true,
+        min: 0  // Ensure the amount is not negative
     }
-})
+});
 
 const User = mongoose.model("User", userSchema);
 const Account = mongoose.model("Account", accountSchema);
@@ -48,4 +53,4 @@ const Account = mongoose.model("Account", accountSchema);
 module.exports = {
     User,
     Account
-}
+};
