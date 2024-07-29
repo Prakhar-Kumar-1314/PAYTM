@@ -49,7 +49,7 @@ const updateBody = zod.object({
     lastName: zod.string(),
 })
 
-userRouter.put("/user", authMiddleware, async (req, res) => {
+userRouter.put("/", authMiddleware, async (req, res) => {
     const success = updateBody.safeParse(req.body);
 
     if (!success) {
@@ -60,6 +60,31 @@ userRouter.put("/user", authMiddleware, async (req, res) => {
     await User.updateOne({_id: req.userID}, req.body);
     res.status(200).json({
         msg: "User updated successfully"
+    })
+})
+
+userRouter.get("/bulk", async (req, res) => {
+    const filter = req.query.filter || ""
+
+    const users = await User.find({
+        $or: [
+    {
+        firstName: {
+            "$regex": filter 
+        }, lastName: {
+            "$regex": filter 
+        }
+    }
+  ]
+    })
+
+    res.status(200).json({
+        user: users.map(user => ({
+            username: user.username,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            _id: user._id
+        }))
     })
 })
 
