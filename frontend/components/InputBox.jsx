@@ -1,14 +1,8 @@
-import React from 'react'
-
-export default function InputBox({top, placeholder}) {
-  return (
-    <div>
-        <div className='font-bold'>
-            {top}
-        </div>
-        <div>
-            <input type="text" class="border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder={placeholder}></input>
-        </div>
+export function InputBox({label, placeholder}) {
+    return <div>
+      <div className="text-sm font-medium text-left py-2">
+        {label}
+      </div>
+      <input placeholder={placeholder} className="w-full px-2 py-1 border rounded border-slate-200" />
     </div>
-  )
 }
