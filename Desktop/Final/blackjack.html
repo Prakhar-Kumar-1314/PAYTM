@@ -1,0 +1,163 @@
+/**
+VERY basic version of blackjack ( it is playable )
+will add images for cards and a proper interface perhaps in a while, just for rough this will do
+ */
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Blackjack</title>
+    <style>
+        /* Add your CSS styles here */
+        #game {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .hand {
+            border: 1px solid #000;
+            padding: 10px;
+            width: 200px;
+            margin-bottom: 10px;
+        }
+        button {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Blackjack</h1>
+    <div id="game">
+        <div id="dealer-hand" class="hand">
+            <h2>Dealer's Hand</h2>
+            <div id="dealer-cards"></div>
+            <p id="dealer-hand-value"></p>
+        </div>
+        <div id="player-hand" class="hand">
+            <h2>Player's Hand</h2>
+            <div id="player-cards"></div>
+            <p id="player-hand-value"></p>
+        </div>
+        <div>
+            <button id="hit-button">Hit</button>
+            <button id="stand-button">Stand</button>
+            <button id="reset-button">Reset</button>
+        </div>
+    </div>
+
+    <script>
+        // Define the deck of cards
+        const deck = [
+            'Ace of Spades', '2 of Spades', '3 of Spades', '4 of Spades', '5 of Spades', '6 of Spades', '7 of Spades', '8 of Spades', '9 of Spades', '10 of Spades', 'Jack of Spades', 'Queen of Spades', 'King of Spades',
+            'Ace of Hearts', '2 of Hearts', '3 of Hearts', '4 of Hearts', '5 of Hearts', '6 of Hearts', '7 of Hearts', '8 of Hearts', '9 of Hearts', '10 of Hearts', 'Jack of Hearts', 'Queen of Hearts', 'King of Hearts',
+            'Ace of Clubs', '2 of Clubs', '3 of Clubs', '4 of Clubs', '5 of Clubs', '6 of Clubs', '7 of Clubs', '8 of Clubs', '9 of Clubs', '10 of Clubs', 'Jack of Clubs', 'Queen of Clubs', 'King of Clubs',
+            'Ace of Diamonds', '2 of Diamonds', '3 of Diamonds', '4 of Diamonds', '5 of Diamonds', '6 of Diamonds', '7 of Diamonds', '8 of Diamonds', '9 of Diamonds', '10 of Diamonds', 'Jack of Diamonds', 'Queen of Diamonds', 'King of Diamonds'
+        ];
+
+        let playerHand = [];
+        let dealerHand = [];
+        let shuffledDeck = [];
+
+        // Function to shuffle the deck
+        function shuffleDeck(deck) {
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+            return deck;
+        }
+
+        // Function to deal a card from the deck
+        function dealCard() {
+            return shuffledDeck.pop();
+        }
+
+        // Function to calculate the value of a hand
+        function calculateHandValue(hand) {
+            let value = 0;
+            let aceCount = 0;
+
+            hand.forEach(card => {
+                let cardValue = card.split(' ')[0];
+                if (cardValue === 'Ace') {
+                    aceCount++;
+                    value += 11;
+                } else if (['King', 'Queen', 'Jack'].includes(cardValue)) {
+                    value += 10;
+                } else {
+                    value += parseInt(cardValue);
+                }
+            });
+
+            while (value > 21 && aceCount > 0) {
+                value -= 10;
+                aceCount--;
+            }
+
+            return value;
+        }
+
+        // Function to update the UI
+        function updateUI() {
+            document.getElementById('player-cards').innerHTML = playerHand.join(', ');
+            document.getElementById('dealer-cards').innerHTML = dealerHand.join(', ');
+            document.getElementById('player-hand-value').innerText = `Value: ${calculateHandValue(playerHand)}`;
+            document.getElementById('dealer-hand-value').innerText = `Value: ${calculateHandValue(dealerHand)}`;
+        }
+
+        // Function to play a round of blackjack
+        function playBlackjack() {
+            shuffledDeck = shuffleDeck([...deck]);
+            playerHand = [dealCard(), dealCard()];
+            dealerHand = [dealCard(), dealCard()];
+
+            updateUI();
+        }
+
+        // Event listeners for buttons
+        document.getElementById('hit-button').addEventListener('click', () => {
+            playerHand.push(dealCard());
+            updateUI();
+            if (calculateHandValue(playerHand) > 21) {
+                alert('Player busts! Dealer wins.');
+                disableButtons();
+            }
+        });
+
+        document.getElementById('stand-button').addEventListener('click', () => {
+            while (calculateHandValue(dealerHand) < 17) {
+                dealerHand.push(dealCard());
+            }
+            updateUI();
+            if (calculateHandValue(dealerHand) > 21) {
+                alert('Dealer busts! Player wins.');
+            } else if (calculateHandValue(dealerHand) >= calculateHandValue(playerHand)) {
+                alert('Dealer wins.');
+            } else {
+                alert('Player wins.');
+            }
+            disableButtons();
+        });
+
+        document.getElementById('reset-button').addEventListener('click', () => {
+            playBlackjack();
+            enableButtons();
+        });
+
+        function disableButtons() {
+            document.getElementById('hit-button').disabled = true;
+            document.getElementById('stand-button').disabled = true;
+        }
+
+        function enableButtons() {
+            document.getElementById('hit-button').disabled = false;
+            document.getElementById('stand-button').disabled = false;
+        }
+
+        // Start the game
+        playBlackjack();
+    </script>
+</body>
+</html>
